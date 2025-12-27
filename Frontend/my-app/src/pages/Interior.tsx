@@ -49,13 +49,17 @@ const Interior: React.FC = () => {
         <Header />
       </div>
 
-      {/* Tabs (clean, no underline, proper spacing) */}
+      {/* Tabs (clean, no underline, with better spacing) */}
       <div
         className="
-    container mx-auto px-4 pt-28 pb-15 
-    flex flex-wrap gap-4 
-    justify-start sm:justify-start 
-    max-w-full ml-4
+    container mx-auto
+    px-4 sm:px-4
+    pt-28 pb-15
+    flex flex-nowrap sm:flex-wrap
+    gap-2 sm:gap-4
+    justify-start
+    max-w-full
+    overflow-x-auto
   "
       >
         {tabs.map((sub) => {
@@ -65,10 +69,12 @@ const Interior: React.FC = () => {
               key={sub}
               to={`/interior/${sub}`}
               className={`
-          px-3 py-1 
-          font-semibold text-base 
-          whitespace-nowrap 
-          transition-colors duration-300 
+          px-2 sm:px-3
+          py-1
+          font-semibold
+          text-md sm:text-base
+          whitespace-nowrap
+          transition-colors duration-300
           ${isActive ? "text-gray-900" : "text-gray-500 hover:text-gray-800"}
         `}
             >
@@ -83,12 +89,15 @@ const Interior: React.FC = () => {
         {filteredProjects.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-[2px] w-full">
             {filteredProjects.slice(0, 30).map((project) => (
-              <div key={project._id} className="relative cursor-pointer overflow-hidden group h-[85vh] sm:h-[90vh]" onClick={() => navigate(`/projects/${project._id}`)}>
-                {/* First Image */}
-                <img src={`http://localhost:5000/${project.images[0]}`} alt={project.title} className="w-full h-full object-cover transition-opacity duration-700 ease-in-out opacity-100 group-hover:opacity-0" />
+              <div key={project._id} onClick={() => navigate(`/projects/${project._id}`)} className="relative cursor-pointer group">
+                {/* Image wrapper to maintain aspect ratio */}
+                <div className="w-full">
+                  {/* First Image */}
+                  <img src={`http://localhost:5000/${project.images[0]}`} alt={project.title} className="w-full h-auto transition-opacity duration-700 ease-in-out opacity-100 group-hover:opacity-0" />
 
-                {/* Second Image (hover swap) */}
-                {project.images[1] && <img src={`http://localhost:5000/${project.images[1]}`} alt={project.title} className="w-full h-full object-cover absolute inset-0 opacity-0 transition-opacity duration-700 ease-in-out group-hover:opacity-100" />}
+                  {/* Second Image (hover swap) */}
+                  {project.images[1] && <img src={`http://localhost:5000/${project.images[1]}`} alt={project.title} className="w-full h-auto absolute top-0 left-0 opacity-0 transition-opacity duration-700 ease-in-out group-hover:opacity-100" />}
+                </div>
 
                 {/* Overlay */}
                 <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/70 to-transparent p-4 sm:p-6 text-white">
@@ -98,7 +107,7 @@ const Interior: React.FC = () => {
             ))}
           </div>
         ) : (
-          // Coming Soon
+          // Coming Soon Section
           <div className="flex flex-col items-center justify-center h-[60vh] text-center">
             <h2 className="text-4xl sm:text-5xl font-bold text-gray-800 mb-4 animate-pulse">Coming Soon</h2>
             <p className="text-base sm:text-lg text-gray-600 max-w-md">

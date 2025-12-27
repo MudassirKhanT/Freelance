@@ -229,25 +229,6 @@ const ProjectsDashboard = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input placeholder="Title" value={form.title || ""} onChange={(e) => setForm({ ...form, title: e.target.value })} />
 
-          {/* <Select
-            value={form.category}
-            onValueChange={(value) => {
-              setForm({ ...form, category: value });
-              setPdfFile(null);
-              setVideoFile(null);
-            }}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select Category" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Architecture">Architecture</SelectItem>
-              <SelectItem value="Interior">Interior</SelectItem>
-              <SelectItem value="Objects">Objects</SelectItem>
-              <SelectItem value="Exhibition">Exhibition</SelectItem>
-              <SelectItem value="video">Video</SelectItem>
-            </SelectContent>
-          </Select> */}
           <Select
             value={form.category || ""}
             onValueChange={(value) => {
@@ -280,21 +261,6 @@ const ProjectsDashboard = () => {
               <SelectItem value="video">Video</SelectItem>
             </SelectContent>
           </Select>
-
-          {/* {form.category !== "video" && (
-            <Select value={form.subCategory} onValueChange={(value) => setForm({ ...form, subCategory: value })}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select SubCategory" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Residential">Residential</SelectItem>
-                <SelectItem value="Commercial">Commercial</SelectItem>
-                <SelectItem value="Lighting">Lighting</SelectItem>
-                <SelectItem value="Furniture">Furniture</SelectItem>
-                <SelectItem value="All">All</SelectItem>
-              </SelectContent>
-            </Select>
-          )} */}
           {form.category !== "video" && (
             <Select value={form.subCategory || ""} onValueChange={(value) => setForm({ ...form, subCategory: value })}>
               <SelectTrigger>
@@ -330,23 +296,25 @@ const ProjectsDashboard = () => {
 
           {form.toHomePage && <Input type="number" placeholder="Home Page Order" value={form.homePageOrder || ""} onChange={(e) => setForm({ ...form, homePageOrder: Number(e.target.value) })} />}
 
-          {/* {form.category === "video" ? (
-            <Input type="file" accept="video/*" placeholder="Select Video" onChange={(e) => setVideoFile(e.target.files?.[0] || null)} />
-          ) : (
-            <>
-              <Input id="imageInput" type="file" multiple accept="image/*" onChange={handleFileChange} placeholder="Select Images" />
-              {form.category === "Objects" && <Input type="file" accept="application/pdf" placeholder="Select Pdf" onChange={(e) => setPdfFile(e.target.files?.[0] || null)} />}
-            </>
-          )} */}
           {form.category === "video" ? (
             <label className="block cursor-pointer">
-              <div className="border border-gray-400 px-4 py-2 rounded-md text-gray-700 hover:bg-gray-100">{videoFile ? videoFile.name : "Upload Video"}</div>
+              <div className="border border-gray-400 px-4 py-2 rounded-md text-gray-700 hover:bg-gray-100">{videoFile ? videoFile.name : "Upload Image / GIF / Video"}</div>
+
               <input
                 type="file"
-                accept="video/*"
+                accept="image/*,video/*,.gif"
                 className="hidden"
                 onChange={(e) => {
                   const file = e.target.files?.[0] || null;
+                  if (!file) return;
+
+                  const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif", "video/mp4", "video/webm", "video/quicktime"];
+
+                  if (!allowedTypes.includes(file.type)) {
+                    alert("Only Image, GIF, or Video files are allowed");
+                    return;
+                  }
+
                   setVideoFile(file);
                 }}
               />
@@ -397,7 +365,15 @@ const ProjectsDashboard = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {currentProjects.map((project) => (
             <div key={project._id} className="border rounded-xl shadow-sm bg-gray-50 hover:shadow-lg transition-all duration-300">
-              {project.category === "video" && project.videoFile ? <video src={`http://localhost:5000/${project.videoFile}`} controls className="rounded-t-xl w-full h-52 object-cover" /> : project.images?.length > 0 && <img src={`http://localhost:5000/${project.images[0]}`} alt={project.title} className="rounded-t-xl w-full h-52 object-cover" />}
+              {project.category === "video" && project.videoFile ? (
+                project.videoFile.match(/\.(mp4|webm|mov)$/i) ? (
+                  <video src={`http://localhost:5000/${project.videoFile}`} controls className="rounded-t-xl w-full h-52 object-cover" />
+                ) : (
+                  <img src={`http://localhost:5000/${project.videoFile}`} alt={project.title} className="rounded-t-xl w-full h-52 object-cover" />
+                )
+              ) : (
+                project.images?.length > 0 && <img src={`http://localhost:5000/${project.images[0]}`} alt={project.title} className="rounded-t-xl w-full h-52 object-cover" />
+              )}
 
               <div className="p-4">
                 <h3 className="font-bold text-lg mb-1">{project.title}</h3>

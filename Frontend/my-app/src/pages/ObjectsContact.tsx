@@ -144,7 +144,7 @@ const ObjectsContact: React.FC<Props> = ({ projectTitle }) => {
   return (
     <>
       {/* Trigger link (replaces button) */}
-      <button onClick={() => setModalOpen(true)} className="flex items-center gap-2 text-gray-600 hover:text-black transition text-base underline-offset-4 ">
+      <button onClick={() => setModalOpen(true)} className="flex items-center cursor-pointer gap-2 text-gray-600 hover:text-black transition text-base underline-offset-4 ">
         <Mail className="w-4 h-4" />
         Get in Touch
       </button>

@@ -96,38 +96,48 @@ const About = () => {
       </section>
 
       {/* ===== PEOPLE SECTION ===== */}
-      <section id="people" className="py-20 bg-white">
-        <div className="text-center px-6 mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-3 font-['Times_New_Roman']">Our Team</h2>
-          <p className="text-gray-600 text-base md:text-lg">Meet our creative professionals driving innovation every day.</p>
+      <section id="people" className="bg-white py-20">
+        {/* HEADER */}
+        <div className="text-center mb-20 px-6">
+          <h2 className="text-3xl md:text-4xl font-['Times_New_Roman'] font-semibold text-gray-900 mb-4">Our Team</h2>
+          <p className="text-gray-600 max-w-2xl mx-auto text-base md:text-lg">Meet our creative professionals driving innovation every day.</p>
         </div>
 
-        <div className="flex flex-col space-y-20 px-6 md:px-24">
+        {/* TEAM LIST */}
+        <div className="max-w-6xl mx-auto flex flex-col space-y-16 space-x-4 px-6 md:px-12 lg:px-30">
           {team.map((member) => (
-            <div key={member._id} className="flex flex-col md:flex-row items-center md:items-start md:gap-16 gap-10">
-              {/* IMAGE */}
-              <div className="w-full md:w-1/3 flex-shrink-0">
+            <div
+              key={member._id}
+              className="
+          grid
+          grid-cols-1
+          md:grid-cols-[260px_1fr]
+          gap-15
+          items-center
+        "
+            >
+              {/* IMAGE — SIZE UNCHANGED */}
+              <div className="flex justify-center md:justify-start">
                 <img
-                  src={member.image ? `http://localhost:5000${member.image}` : "https://via.placeholder.com/500x500"}
+                  src={member.image ? `http://localhost:5000${member.image}` : "https://via.placeholder.com/400x500"}
                   alt={member.name}
                   className="
-              w-full 
-              h-auto 
-              max-h-[420px]
-              object-contain   /* <-- Full image visible, not cut */
-              shadow-sm
+              w-[240px]
+              sm:w-[260px]
+              h-[300px]
+              sm:h-[320px]
+              object-cover
             "
                 />
               </div>
 
-              {/* TEXT CONTENT */}
-              <div className="w-full md:w-2/3 text-left">
-                <h3 className="text-2xl md:text-3xl font-semibold text-gray-900 mb-3">
-                  {member.name}
-                  {member.role && <span className="text-gray-500 font-normal">, {member.role}</span>}
-                </h3>
+              {/* CONTENT */}
+              <div className="text-center md:text-left">
+                <h3 className="text-blue-700 text-2xl font-semibold leading-tight mb-1">{member.name}</h3>
 
-                <p className="text-gray-800 text-base md:text-lg leading-relaxed max-w-2xl">{member.description || "A passionate team member contributing to our success."}</p>
+                {member.role && <p className="text-blue-700 text-lg mb-4">{member.role}</p>}
+
+                <p className="text-gray-700 text-base leading-relaxed max-w-2xl mx-auto md:mx-0">{member.description || "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."}</p>
               </div>
             </div>
           ))}
@@ -135,7 +145,7 @@ const About = () => {
       </section>
 
       {/* ===== PRESS SECTION ===== */}
-      <section id="press" className="bg-[#ffff] py-20 text-center border-t border-gray-200">
+      <section id="press" className="bg-[#ffff] py-3 px-1 text-center">
         <h2 className="text-3xl md:text-4xl font-bold mb-4 font-['Times_New_Roman']">Press & Media</h2>
         <p className="text-gray-700 max-w-2xl mx-auto mb-8 text-base md:text-lg">Explore our latest mentions, collaborations, and design recognitions.</p>
 

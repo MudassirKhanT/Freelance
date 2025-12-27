@@ -2,7 +2,7 @@ import React from "react";
 
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-[#f4f3f1] text-black py-10 px-6 md:px-16 border-t border-gray-300">
+    <footer className="bg-[#f4f3f1] text-black py-10 px-6 md:px-16">
       <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10">
         {/* Column 1 : Brand & Address */}
         <div>
@@ -52,7 +52,7 @@ const Footer: React.FC = () => {
       </div>
 
       {/* Bottom Bar */}
-      <div className="border-t border-gray-300 mt-10 pt-6 text-center text-sm">© 2025 Linedart. All Rights Reserved.</div>
+      <div className="mt-10 pt-6 text-center text-sm">© 2025 Linedart. All Rights Reserved.</div>
     </footer>
   );
 };
