@@ -172,7 +172,7 @@ const Home: React.FC = () => {
           if (group.length === 1) {
             const proj = group[0];
             return (
-              <div key={proj._id} ref={gi === 0 ? firstSectionRef : undefined} className="w-full md:h-[100vh]">
+              <div key={proj._id} ref={gi === 0 ? firstSectionRef : undefined} className="w-full">
                 <ProjectCard project={proj} onClick={(id) => navigate(`/projects/${id}`)} layout="full" />
               </div>
             );
@@ -182,7 +182,7 @@ const Home: React.FC = () => {
           return (
             <div key={`group-${gi}`} className="grid grid-cols-1 md:grid-cols-2 w-full">
               {group.map((proj) => (
-                <div key={proj._id} className="w-full md:h-screen">
+                <div key={proj._id} className="w-full">
                   <ProjectCard project={proj} onClick={(id) => navigate(`/projects/${id}`)} layout="half" />
                 </div>
               ))}
