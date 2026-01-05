@@ -109,12 +109,22 @@ export const updateProject = async (req, res) => {
 
     if (homePageOrder !== undefined) existingProject.homePageOrder = Number(homePageOrder);
 
-    /* ---------------- UPDATE IMAGES ---------------- */
-    if (req.files?.images) {
-      const processedImages = [];
+    /* ---------------- UPDATE IMAGES (DELETE + REORDER SAFE) ---------------- */
 
+    let finalImages = [];
+
+    /* 1️⃣ Existing images (order comes from frontend) */
+    if (req.body.existingImages) {
+      const existingImages = Array.isArray(req.body.existingImages) ? req.body.existingImages : [req.body.existingImages];
+
+      finalImages.push(...existingImages);
+    }
+
+    /* 2️⃣ Newly uploaded images */
+    if (req.files?.images) {
       for (const file of req.files.images) {
         const inputPath = file.path;
+
         const buffer = await fs.promises.readFile(inputPath);
         const metadata = await sharp(buffer).metadata();
 
@@ -124,11 +134,13 @@ export const updateProject = async (req, res) => {
         const newPath = path.join(folder, `${Date.now()}.${ratio}${ext}`);
 
         await fs.promises.rename(inputPath, newPath);
-        processedImages.push(newPath);
-      }
 
-      existingProject.images = processedImages;
+        finalImages.push(newPath);
+      }
     }
+
+    /* 3️⃣ Save final ordered images */
+    existingProject.images = finalImages;
 
     /* ---------------- UPDATE PDF ---------------- */
     if (req.files?.pdfFile) {

@@ -99,7 +99,7 @@ const Header: React.FC<HeaderProps> = ({ visible = true }) => {
           className={`md:hidden flex justify-between items-center px-5 h-16
           ${isDark ? "bg-transparent" : "bg-white/90 backdrop-blur-md"}`}
         >
-          <h1 className={`text-xl font-semibold ${textColor}`}>
+          <h1 className={`text-xl  ${textColor}`}>
             <Link to="/" onClick={handleLinkClick}>
               LİNEDORİ
             </Link>
@@ -113,14 +113,14 @@ const Header: React.FC<HeaderProps> = ({ visible = true }) => {
         {/* ---------- MOBILE FULLSCREEN MODAL ---------- */}
         {menuOpen && (
           <div className="fixed top-0 left-0 w-screen h-screen bg-white z-[999] flex flex-col justify-between animate-slideDown">
-            <button className="absolute top-6 right-6 text-black hover:opacity-70" onClick={() => setMenuOpen(false)}>
+            <button className="absolute top-6 right-6 text-black hover:opacity-70 cursor-pointer" onClick={() => setMenuOpen(false)}>
               <X size={36} />
             </button>
-            <button className="absolute top-8 left-8 text-xl cursor-pointer text-black font-semibold hover:opacity-70" onClick={() => navigate("/")}>
+            <button className="absolute top-8 left-8 text-xl cursor-pointer text-black  hover:opacity-70" onClick={() => navigate("/")}>
               LİNEDORİ
             </button>
 
-            <nav className="flex flex-col space-y-6 text-lg font-bold text-black px-8 mt-20">
+            <nav className="flex flex-col space-y-6 text-lg  text-black px-8 mt-20">
               {navItems.map((item, idx) => (
                 <Link
                   key={idx}

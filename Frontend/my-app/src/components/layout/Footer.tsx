@@ -52,7 +52,13 @@ const Footer: React.FC = () => {
       </div>
 
       {/* Bottom Bar */}
-      <div className="mt-10 pt-6 text-center text-sm">© 2025 Linedart. All Rights Reserved.</div>
+      <div className="mt-10 pt-6 text-center text-sm space-y-2">
+        <a href="/terms-and-conditions.pdf" target="_blank" rel="noopener noreferrer" className="hover:underline">
+          Terms & Conditions
+        </a>
+
+        <div>© 2025 Linedart. All Rights Reserved.</div>
+      </div>
     </footer>
   );
 };

@@ -60,7 +60,7 @@ const Architecture: React.FC = () => {
               key={sub}
               to={`/architecture/${sub}`}
               className={`
-          px-2 sm:px-3
+          px-2 sm:px-5
           py-1
           font-semibold
           text-md sm:text-base
@@ -80,25 +80,52 @@ const Architecture: React.FC = () => {
         {filteredProjects.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-[2px] w-full">
             {filteredProjects.slice(0, 30).map((project) => (
-              <div key={project._id} onClick={() => navigate(`/projects/${project._id}`)} className="relative cursor-pointer group">
-                {/* Image wrapper to maintain aspect ratio */}
-                <div className="w-full">
-                  {/* First Image */}
-                  <img src={`http://localhost:5000/${project.images[0]}`} alt={project.title} className="w-full h-auto transition-opacity duration-700 ease-in-out opacity-100 group-hover:opacity-0" />
+              <div key={project._id} onClick={() => navigate(`/projects/${project._id}`)} className="relative cursor-pointer group overflow-hidden">
+                {/* IMAGE WRAPPER */}
+                <div className="relative w-full h-full">
+                  {/* FIRST IMAGE */}
+                  <img
+                    src={`http://localhost:5000/${project.images[0]}`}
+                    alt={project.title}
+                    onLoad={(e) => {
+                      const img = e.currentTarget;
+                      img.style.objectFit = img.naturalHeight > img.naturalWidth ? "contain" : "cover";
+                    }}
+                    className="
+                w-full h-full
+                transition-opacity duration-700 ease-in-out
+                opacity-100 group-hover:opacity-0
+              "
+                  />
 
-                  {/* Second Image (hover swap) */}
-                  {project.images[1] && <img src={`http://localhost:5000/${project.images[1]}`} alt={project.title} className="w-full h-auto absolute top-0 left-0 opacity-0 transition-opacity duration-700 ease-in-out group-hover:opacity-100" />}
+                  {/* SECOND IMAGE (hover swap) */}
+                  {project.images[1] && (
+                    <img
+                      src={`http://localhost:5000/${project.images[1]}`}
+                      alt={project.title}
+                      onLoad={(e) => {
+                        const img = e.currentTarget;
+                        img.style.objectFit = img.naturalHeight > img.naturalWidth ? "contain" : "cover";
+                      }}
+                      className="
+                  absolute top-0 left-0
+                  w-full h-full
+                  opacity-0 transition-opacity duration-700 ease-in-out
+                  group-hover:opacity-100
+                "
+                    />
+                  )}
                 </div>
 
-                {/* Overlay */}
-                <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/70 to-transparent p-4 sm:p-6 text-white">
+                {/* OVERLAY */}
+                <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/70 to-transparent p-4 sm:p-6 text-white pointer-events-none">
                   <h2 className="text-lg sm:text-xl font-semibold">{project.title}</h2>
                 </div>
               </div>
             ))}
           </div>
         ) : (
-          // Coming Soon Section
+          /* Coming Soon Section */
           <div className="flex flex-col items-center justify-center h-[60vh] text-center">
             <h2 className="text-4xl sm:text-5xl font-bold text-gray-800 mb-4 animate-pulse">Coming Soon</h2>
             <p className="text-base sm:text-lg text-gray-600 max-w-md">

@@ -132,9 +132,15 @@ const ProjectsDashboard = () => {
 
     if (form.category !== "video") {
       previewFiles.forEach((p) => {
-        if (p.file) formData.append("images", p.file);
-        else if (p.filename) formData.append("existingImages", p.filename);
+        if (p.file) {
+          // new images
+          formData.append("images", p.file);
+        } else if (p.filename) {
+          // existing images (ORDER MATTERS)
+          formData.append("existingImages[]", p.filename);
+        }
       });
+
       if (form.category === "Objects" && pdfFile) formData.append("pdfFile", pdfFile);
     }
 
