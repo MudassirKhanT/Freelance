@@ -21,8 +21,8 @@ const StudioDashboard = () => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
-  // ✅ Fetch studios
   const fetchStudios = async () => {
     try {
       const res = await API.get("/studio");
@@ -36,7 +36,6 @@ const StudioDashboard = () => {
     fetchStudios();
   }, []);
 
-  // ✅ Image handler
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -45,7 +44,6 @@ const StudioDashboard = () => {
     }
   };
 
-  // ✅ Submit studio
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -74,7 +72,6 @@ const StudioDashboard = () => {
     }
   };
 
-  // ✅ Reset form
   const resetForm = () => {
     setForm({});
     setImageFile(null);
@@ -83,7 +80,6 @@ const StudioDashboard = () => {
     (document.getElementById("imageInput") as HTMLInputElement).value = "";
   };
 
-  // ✅ Edit studio
   const handleEdit = (studio: Studio) => {
     setForm({
       title: studio.title,
@@ -93,10 +89,9 @@ const StudioDashboard = () => {
       email: studio.email,
     });
     setEditingId(studio._id);
-    if (studio.image) setPreview(`http://localhost:5000${studio.image}`);
+    if (studio.image) setPreview(`${backendUrl}${studio.image}`);
   };
 
-  // ✅ Delete studio
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this studio?")) return;
     try {
@@ -109,7 +104,6 @@ const StudioDashboard = () => {
 
   return (
     <div className="p-4">
-      {/* Form Section */}
       <div className="bg-white shadow-md rounded-xl p-6 max-w-2xl mx-auto mb-8">
         <h2 className="text-xl font-semibold mb-4">{editingId ? "Edit Studio" : "Create Studio"}</h2>
 
@@ -130,7 +124,6 @@ const StudioDashboard = () => {
         </form>
       </div>
 
-      {/* Studios List */}
       <div className="bg-white shadow-md rounded-xl p-6">
         <h2 className="text-xl font-semibold mb-4">Studios</h2>
 
@@ -143,7 +136,7 @@ const StudioDashboard = () => {
                 <h3 className="font-bold text-lg">{studio.title}</h3>
                 <p className="text-sm text-gray-600">{studio.location}</p>
                 <p className="mt-2 text-gray-700 line-clamp-3">{studio.description}</p>
-                {studio.image && <img src={`http://localhost:5000${studio.image}`} alt={studio.title} className="mt-2 rounded-lg h-32 w-full object-cover" />}
+                {studio.image && <img src={`${backendUrl}${studio.image}`} alt={studio.title} className="mt-2 rounded-lg h-32 w-full object-cover" />}
 
                 <div className="flex gap-2 mt-4">
                   <Button variant="outline" className="flex-1" onClick={() => handleEdit(studio)}>

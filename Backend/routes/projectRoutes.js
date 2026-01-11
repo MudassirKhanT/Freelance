@@ -5,19 +5,17 @@ import { createProject, getProjects, getProjectById, updateProject, deleteProjec
 
 const router = express.Router();
 
-// ✅ Homepage projects route (must be before /:id)
 router.get("/homepage/list", getHomePageProjects);
 
 router.get("/", getProjects);
 router.get("/:id", getProjectById);
-// routes/projectRoutes.js
 router.post(
   "/",
   protect,
   upload.fields([
     { name: "images", maxCount: 15 },
     { name: "pdfFile", maxCount: 1 },
-    { name: "videoFile", maxCount: 1 }, // 🆕 Added
+    { name: "videoFile", maxCount: 1 },
   ]),
   createProject
 );
@@ -28,30 +26,10 @@ router.put(
   upload.fields([
     { name: "images", maxCount: 15 },
     { name: "pdfFile", maxCount: 1 },
-    { name: "videoFile", maxCount: 1 }, // 🆕 Added
+    { name: "videoFile", maxCount: 1 },
   ]),
   updateProject
 );
-
-// router.post(
-//   "/",
-//   protect,
-//   upload.fields([
-//     { name: "images", maxCount: 15 },
-//     { name: "pdfFile", maxCount: 1 },
-//   ]),
-//   createProject
-// );
-
-// router.put(
-//   "/:id",
-//   protect,
-//   upload.fields([
-//     { name: "images", maxCount: 15 },
-//     { name: "pdfFile", maxCount: 1 },
-//   ]),
-//   updateProject
-// );
 
 router.delete("/:id", protect, deleteProject);
 

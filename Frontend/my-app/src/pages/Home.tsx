@@ -27,7 +27,7 @@
 //   useEffect(() => {
 //     const fetchProjects = async () => {
 //       try {
-//         const res = await axios.get("http://localhost:5000/api/projects/homepage/list");
+//         const res = await axios.get("${backendUrl}/api/projects/homepage/list");
 
 //         if (Array.isArray(res.data)) {
 //           const filtered = res.data.filter((p: Project) => p.toHomePage || p.isPrior);
@@ -55,7 +55,7 @@
 //   useEffect(() => {
 //     const fetchStudio = async () => {
 //       try {
-//         const res = await axios.get("http://localhost:5000/api/studio");
+//         const res = await axios.get("${backendUrl}/api/studio");
 //         if (res.data && res.data.length > 0) setStudio(res.data[0]);
 //       } catch (err) {
 //         console.error("Error fetching studio:", err);
@@ -245,12 +245,13 @@ const Home: React.FC = () => {
   const firstSectionRef = useRef<HTMLDivElement | null>(null);
   const lastScrollY = useRef(0);
   const navigate = useNavigate();
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
   /* ---------------- FETCH PROJECTS ---------------- */
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/projects/homepage/list");
+        const res = await axios.get(`${backendUrl}/api/projects/homepage/list`);
 
         if (Array.isArray(res.data)) {
           const filtered = res.data.filter((p: Project) => p.toHomePage || p.isPrior);
@@ -278,7 +279,7 @@ const Home: React.FC = () => {
   useEffect(() => {
     const fetchStudio = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/studio");
+        const res = await axios.get(`${backendUrl}/api/studio`);
         if (res.data && res.data.length > 0) setStudio(res.data[0]);
       } catch (err) {
         console.error("Error fetching studio:", err);
@@ -357,11 +358,11 @@ const Home: React.FC = () => {
                       px-5 sm:px-8 md:px-16 lg:px-20
                       py-10 sm:py-12 md:py-0
                       md:h-screen
-                      bg-[#f4f3f1]
+                       bg-[#0000B5]
                     "
                   >
                     <div className="max-w-xl mx-auto md:mx-0 text-center md:text-left">
-                      <h2
+                      {/* <h2
                         className="
                           text-xl sm:text-2xl md:text-3xl lg:text-4xl
                           font-bold mb-4 md:mb-6
@@ -369,12 +370,12 @@ const Home: React.FC = () => {
                         "
                       >
                         {studio.title}
-                      </h2>
+                      </h2> */}
 
                       <p
                         className="
                           font-['Times_New_Roman']
-                          text-gray-800
+                          text-white
                           leading-relaxed
                           mb-4 sm:mb-5 md:mb-6
                         "
@@ -396,7 +397,7 @@ const Home: React.FC = () => {
                         }}
                         className="
                           text-sm sm:text-base
-                          text-gray-700 hover:text-gray-900
+                          text-white
                           underline underline-offset-4 cursor-pointer
                         "
                       >

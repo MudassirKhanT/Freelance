@@ -7,20 +7,16 @@ export const createProject = async (req, res) => {
   try {
     const { title, category, subCategory, description, contactDescription, isPrior, toHomePage, homePageOrder } = req.body;
 
-    // ✅ FIX: prevent empty string enum error
     const cleanedSubCategory = subCategory && subCategory.trim() !== "" ? subCategory : undefined;
 
-    /* -------------------- IMAGE PROCESSING ------------------- */
     const processedImages = [];
 
     if (req.files?.images) {
       for (const file of req.files.images) {
         const inputPath = file.path;
 
-        // Read file into memory (prevents Windows lock)
         const buffer = await fs.promises.readFile(inputPath);
 
-        // Sharp metadata
         const metadata = await sharp(buffer).metadata();
         const ratio = (metadata.width / metadata.height).toFixed(3);
 
@@ -28,25 +24,20 @@ export const createProject = async (req, res) => {
         const folder = path.dirname(inputPath);
         const newPath = path.join(folder, `${Date.now()}.${ratio}${ext}`);
 
-        // Safe rename
         await fs.promises.rename(inputPath, newPath);
 
         processedImages.push(newPath);
       }
     }
 
-    /* -------------------- FILES ------------------- */
     const pdfFile = req.files?.pdfFile ? req.files.pdfFile[0].path : null;
 
-    // image / gif / video (kept name as videoFile)
     const videoFile = req.files?.videoFile ? req.files.videoFile[0].path : null;
 
-    /* ---------------- HOME PAGE ORDER ---------------- */
     if (toHomePage === "true" && homePageOrder) {
       await Project.updateMany({ toHomePage: true, homePageOrder: { $gte: Number(homePageOrder) } }, { $inc: { homePageOrder: 1 } });
     }
 
-    /* ---------------- CREATE PROJECT ---------------- */
     const newProject = new Project({
       title,
       category,
@@ -78,9 +69,6 @@ export const createProject = async (req, res) => {
   }
 };
 
-/* ============================================================
-   UPDATE PROJECT
-============================================================ */
 export const updateProject = async (req, res) => {
   try {
     const { id } = req.params;
@@ -91,11 +79,9 @@ export const updateProject = async (req, res) => {
       return res.status(404).json({ message: "Project not found" });
     }
 
-    /* ---------------- BASIC FIELDS ---------------- */
     if (title) existingProject.title = title;
     if (category) existingProject.category = category;
 
-    // ✅ FIX: handle empty subCategory safely
     if (subCategory !== undefined) {
       existingProject.subCategory = subCategory.trim() === "" ? undefined : subCategory;
     }
@@ -109,18 +95,14 @@ export const updateProject = async (req, res) => {
 
     if (homePageOrder !== undefined) existingProject.homePageOrder = Number(homePageOrder);
 
-    /* ---------------- UPDATE IMAGES (DELETE + REORDER SAFE) ---------------- */
-
     let finalImages = [];
 
-    /* 1️⃣ Existing images (order comes from frontend) */
     if (req.body.existingImages) {
       const existingImages = Array.isArray(req.body.existingImages) ? req.body.existingImages : [req.body.existingImages];
 
       finalImages.push(...existingImages);
     }
 
-    /* 2️⃣ Newly uploaded images */
     if (req.files?.images) {
       for (const file of req.files.images) {
         const inputPath = file.path;
@@ -139,20 +121,16 @@ export const updateProject = async (req, res) => {
       }
     }
 
-    /* 3️⃣ Save final ordered images */
     existingProject.images = finalImages;
 
-    /* ---------------- UPDATE PDF ---------------- */
     if (req.files?.pdfFile) {
       existingProject.pdfFile = req.files.pdfFile[0].path;
     }
 
-    /* ---------------- UPDATE VIDEO / IMAGE / GIF ---------------- */
     if (req.files?.videoFile) {
       existingProject.videoFile = req.files.videoFile[0].path;
     }
 
-    /* ---------------- SAVE ---------------- */
     await existingProject.save();
 
     return res.status(200).json({
@@ -169,7 +147,6 @@ export const updateProject = async (req, res) => {
   }
 };
 
-// Delete project
 export const deleteProject = async (req, res) => {
   try {
     await Project.findByIdAndDelete(req.params.id);
@@ -179,17 +156,15 @@ export const deleteProject = async (req, res) => {
   }
 };
 
-// Get home page projects
 export const getHomePageProjects = async (req, res) => {
   try {
-    const projects = await Project.find({ toHomePage: true }).sort({ homePageOrder: 1 }); // order ascending
+    const projects = await Project.find({ toHomePage: true }).sort({ homePageOrder: 1 });
     res.json(projects);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
-// Get all projects (sorted by isPrior + latest)
 export const getProjects = async (req, res) => {
   try {
     const { category, subCategory } = req.query;
@@ -197,7 +172,6 @@ export const getProjects = async (req, res) => {
     if (category) query.category = category;
     if (subCategory) query.subCategory = subCategory;
 
-    // Sort by isPrior first (true first), then latest createdAt
     const projects = await Project.find(query).sort({ isPrior: -1, createdAt: -1 });
     res.json(projects);
   } catch (err) {
@@ -205,7 +179,6 @@ export const getProjects = async (req, res) => {
   }
 };
 
-// Get project by ID
 export const getProjectById = async (req, res) => {
   try {
     const project = await Project.findById(req.params.id);

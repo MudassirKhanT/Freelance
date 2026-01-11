@@ -11,6 +11,7 @@ const ObjectsContact: React.FC<Props> = ({ projectTitle }) => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -20,7 +21,7 @@ const ObjectsContact: React.FC<Props> = ({ projectTitle }) => {
     try {
       setLoading(true);
       setErrorMsg("");
-      const response = await axios.post("http://localhost:5000/api/contact", {
+      const response = await axios.post(`${backendUrl}/api/contact`, {
         ...data,
         project: projectTitle,
       });
@@ -45,26 +46,23 @@ const ObjectsContact: React.FC<Props> = ({ projectTitle }) => {
 
   return (
     <>
-      {/* Trigger link (replaces button) */}
-      <button onClick={() => setModalOpen(true)} className="flex items-center cursor-pointer gap-2 text-gray-600 hover:text-black transition text-base underline-offset-4 ">
+      <button onClick={() => setModalOpen(true)} className="flex items-center cursor-pointer gap-2 text-[#0000B5] hover:underline transition text-base font-semibold underline-offset-4 ">
         <Mail className="w-4 h-4" />
         Get in Touch
       </button>
 
-      {/* Modal */}
       {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="bg-white w-full max-w-lg shadow-2xl relative animate-fadeIn">
-            {/* Close button */}
-            <button className="absolute top-3 right-4 text-gray-600 hover:text-black text-3xl leading-none transition" onClick={() => setModalOpen(false)}>
+            <button className="absolute cursor-pointer top-3 right-4 text-gray-600 hover:text-black text-3xl leading-none transition" onClick={() => setModalOpen(false)}>
               &times;
             </button>
 
             {!success ? (
               <>
                 <div className="border-b border-gray-200 px-6 py-4">
-                  <h2 className="text-2xl font-semibold text-gray-900 text-center">Connect</h2>
-                  <p className="text-center text-gray-600 text-sm mt-2">
+                  <h2 className="text-2xl font-semibold text-[#0000B5] text-center">Connect</h2>
+                  <p className="text-center text-[#0000B5] text-sm mt-2">
                     Interested in <span className="font-semibold">{projectTitle}</span>? Fill out the form below — we’ll reach out soon.
                   </p>
                 </div>
@@ -75,7 +73,7 @@ const ObjectsContact: React.FC<Props> = ({ projectTitle }) => {
                   <input type="text" name="subject" placeholder="Subject" required className="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-700" />
                   <textarea name="message" placeholder="Message" rows={4} required className="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-700 resize-none"></textarea>
 
-                  <button type="submit" disabled={loading} className="w-full bg-gray-800 text-white py-2 text-sm hover:bg-gray-900 transition">
+                  <button type="submit" disabled={loading} className="w-full cursor-pointer bg-[#0000B5] text-white py-2 text-sm hover:bg-gray-900 transition">
                     {loading ? "Sending..." : "Send Message"}
                   </button>
 

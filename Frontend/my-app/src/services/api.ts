@@ -1,11 +1,12 @@
 import axios from "axios";
 
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
 const API = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL: `${backendUrl}/api`,
   withCredentials: true,
 });
 
-// ✅ Attach Authorization header automatically
 API.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) {
@@ -14,7 +15,6 @@ API.interceptors.request.use((config) => {
   return config;
 });
 
-// -------------------- AUTH ROUTES --------------------
 export const registerAdmin = (data: { name: string; email: string; password: string }) => API.post("/auth/register-admin", data);
 
 export const registerUser = (data: { name: string; email: string; password: string }) => API.post("/auth/register", data);
@@ -27,7 +27,6 @@ export const login = async (data: { email: string; password: string }) => {
   return res;
 };
 
-// -------------------- PROJECT ROUTES --------------------
 export const getProjects = () => API.get("/auth/projects");
 export const getProjectById = (id: string) => API.get(`/auth/projects/${id}`);
 export const createProject = (formData: FormData) => API.post("/auth/projects", formData);
@@ -35,21 +34,18 @@ export const updateProject = (id: string, formData: FormData) => API.put(`/auth/
 export const deleteProject = (id: string) => API.delete(`/auth/projects/${id}`);
 export const getHomeProjects = () => API.get("/projects/homepage/list");
 
-// -------------------- TEAM ROUTES --------------------
 export const getTeam = () => API.get("/team");
 export const getTeamMemberById = (id: string) => API.get(`/team/${id}`);
 export const createTeamMember = (formData: FormData) => API.post("/team", formData);
 export const updateTeamMember = (id: string, formData: FormData) => API.put(`/team/${id}`, formData);
 export const deleteTeamMember = (id: string) => API.delete(`/team/${id}`);
 
-// -------------------- PRESS ROUTES --------------------
 export const getPress = () => API.get("/press");
 export const getPressById = (id: string) => API.get(`/press/${id}`);
 export const createPress = (formData: FormData) => API.post("/press", formData);
 export const updatePress = (id: string, formData: FormData) => API.put(`/press/${id}`, formData);
 export const deletePress = (id: string) => API.delete(`/press/${id}`);
 
-// -------------------- STUDIO ROUTES --------------------
 export const getStudios = () => API.get("/studio");
 export const getStudioById = (id: string) => API.get(`/studio/${id}`);
 export const createStudio = (formData: FormData) => API.post("/studio", formData);

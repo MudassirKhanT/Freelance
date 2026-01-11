@@ -2,9 +2,8 @@ import React from "react";
 
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-[#f4f3f1] text-black py-10 px-6 md:px-16">
+    <footer className="bg-white text-[#0000B5] font-semibold py-10 px-6 md:px-16">
       <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10">
-        {/* Column 1 : Brand & Address */}
         <div>
           <h2 className="font-semibold mb-3 uppercase">LİNEDORİ</h2>
           <p>101 Dr. D. N. Road,</p>
@@ -18,22 +17,18 @@ const Footer: React.FC = () => {
           <p className="mt-3">COA Number</p>
         </div>
 
-        {/* Column 2 : Contact */}
         <div>
           <h2 className="font-semibold mb-3 uppercase">Contact</h2>
-
           <a href="mailto:hello@finedori.xyz" className="block hover:underline">
-            hello@finedori.xyz
+            email - hello@finedori.xyz
           </a>
-
           <div className="mt-4 space-y-1">
             <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="block hover:underline">
-              Instagram
+              instagram - link
             </a>
           </div>
         </div>
 
-        {/* Column 3 : Quick Links */}
         <div>
           <h2 className="font-semibold mb-3 uppercase">Quick Links</h2>
 
@@ -51,7 +46,6 @@ const Footer: React.FC = () => {
         </div>
       </div>
 
-      {/* Bottom Bar */}
       <div className="mt-10 pt-6 text-center text-sm space-y-2">
         <a href="/terms-and-conditions.pdf" target="_blank" rel="noopener noreferrer" className="hover:underline">
           Terms & Conditions

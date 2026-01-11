@@ -68,8 +68,8 @@ const ProjectsDashboard = () => {
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
-  // ✅ Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const projectsPerPage = 9;
 
@@ -114,7 +114,6 @@ const ProjectsDashboard = () => {
     setVideoFile(null);
     setEditingId(null);
 
-    // reset file inputs
     const imgInput = document.getElementById("imageInput") as HTMLInputElement;
     if (imgInput) imgInput.value = "";
 
@@ -133,10 +132,8 @@ const ProjectsDashboard = () => {
     if (form.category !== "video") {
       previewFiles.forEach((p) => {
         if (p.file) {
-          // new images
           formData.append("images", p.file);
         } else if (p.filename) {
-          // existing images (ORDER MATTERS)
           formData.append("existingImages[]", p.filename);
         }
       });
@@ -161,7 +158,6 @@ const ProjectsDashboard = () => {
 
       alert("✅ Project saved successfully!");
 
-      // 🔥 RESET EVERYTHING
       resetForm();
 
       fetchProjects();
@@ -187,7 +183,7 @@ const ProjectsDashboard = () => {
 
     const previews = project.images.map((img, idx) => ({
       id: `${img}-${idx}`,
-      url: `http://localhost:5000/${img}`,
+      url: `${backendUrl}/${img}`,
       filename: img,
     }));
 
@@ -218,7 +214,6 @@ const ProjectsDashboard = () => {
     }
   };
 
-  // ✅ Pagination logic
   const indexOfLast = currentPage * projectsPerPage;
   const indexOfFirst = indexOfLast - projectsPerPage;
   const currentProjects = projects.slice(indexOfFirst, indexOfLast);
@@ -228,7 +223,6 @@ const ProjectsDashboard = () => {
 
   return (
     <div className="p-4">
-      {/* Form Section */}
       <div className="bg-white shadow-md rounded-xl p-6 max-w-2xl mx-auto mb-8">
         <h2 className="text-xl font-semibold mb-4">{editingId ? "Edit Project" : "Create Project"}</h2>
 
@@ -241,13 +235,12 @@ const ProjectsDashboard = () => {
               setForm({
                 ...form,
                 category: value,
-                subCategory: "", // 🔥 Reset subcategory when category changes
+                subCategory: "",
               });
 
               setPdfFile(null);
               setVideoFile(null);
 
-              // Also clear the file input fields
               const pdfInput = document.getElementById("pdfInput") as HTMLInputElement;
               if (pdfInput) pdfInput.value = "";
 
@@ -327,13 +320,11 @@ const ProjectsDashboard = () => {
             </label>
           ) : (
             <>
-              {/* IMAGE UPLOADER */}
               <label className="block cursor-pointer">
                 <div className="border border-gray-400 px-4 py-2 rounded-md text-gray-700 hover:bg-gray-100">{previewFiles.length > 0 ? `${previewFiles.length} files selected` : "Upload Images"}</div>
                 <input id="imageInput" type="file" multiple accept="image/*" className="hidden" onChange={handleFileChange} />
               </label>
 
-              {/* PDF Upload for Objects */}
               {form.category === "Objects" && (
                 <label className="block cursor-pointer">
                   <div className="border border-gray-400 px-4 py-2 rounded-md text-gray-700 hover:bg-gray-100">{pdfFile ? pdfFile.name : "Upload PDF"}</div>
@@ -364,7 +355,6 @@ const ProjectsDashboard = () => {
         </form>
       </div>
 
-      {/* Projects List with Pagination */}
       <div className="bg-white shadow-md rounded-xl p-6">
         <h2 className="text-xl font-semibold mb-6">Projects</h2>
 
@@ -373,12 +363,12 @@ const ProjectsDashboard = () => {
             <div key={project._id} className="border rounded-xl shadow-sm bg-gray-50 hover:shadow-lg transition-all duration-300">
               {project.category === "video" && project.videoFile ? (
                 project.videoFile.match(/\.(mp4|webm|mov)$/i) ? (
-                  <video src={`http://localhost:5000/${project.videoFile}`} controls className="rounded-t-xl w-full h-52 object-cover" />
+                  <video src={`${backendUrl}/${project.videoFile}`} controls className="rounded-t-xl w-full h-52 object-cover" />
                 ) : (
-                  <img src={`http://localhost:5000/${project.videoFile}`} alt={project.title} className="rounded-t-xl w-full h-52 object-cover" />
+                  <img src={`${backendUrl}/${project.videoFile}`} alt={project.title} className="rounded-t-xl w-full h-52 object-cover" />
                 )
               ) : (
-                project.images?.length > 0 && <img src={`http://localhost:5000/${project.images[0]}`} alt={project.title} className="rounded-t-xl w-full h-52 object-cover" />
+                project.images?.length > 0 && <img src={`${backendUrl}/${project.images[0]}`} alt={project.title} className="rounded-t-xl w-full h-52 object-cover" />
               )}
 
               <div className="p-4">
@@ -391,7 +381,7 @@ const ProjectsDashboard = () => {
                 {project.toHomePage && <p className="text-sm font-semibold text-green-600">🏠 Home Order: {project.homePageOrder ?? "-"}</p>}
 
                 {project.pdfFile && (
-                  <a href={`http://localhost:5000/${project.pdfFile}`} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex items-center justify-center gap-2 bg-black text-white font-medium px-6 py-2 rounded-lg shadow-sm hover:bg-gray-800 transition-all w-full">
+                  <a href={`${backendUrl}/${project.pdfFile}`} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex items-center justify-center gap-2 bg-black text-white font-medium px-6 py-2 rounded-lg shadow-sm hover:bg-gray-800 transition-all w-full">
                     <FileText className="w-5 h-5" />
                     <span>View PDF</span>
                   </a>

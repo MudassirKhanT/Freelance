@@ -11,9 +11,10 @@ interface Props {
 const CategoryPage: React.FC<Props> = ({ category }) => {
   const [projects, setProjects] = useState<Project[]>([]);
   const navigate = useNavigate();
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
   useEffect(() => {
-    axios.get("http://localhost:5000/api/projects").then((res) => {
+    axios.get(`${backendUrl}/api/projects`).then((res) => {
       setProjects(res.data.filter((p: Project) => p.category === category));
     });
   }, [category]);

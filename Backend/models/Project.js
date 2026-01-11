@@ -15,8 +15,8 @@ const projectSchema = new mongoose.Schema(
     description: { type: String },
     images: [{ type: String }],
     pdfFile: { type: String },
-    videoFile: { type: String }, // 🆕 Added
-    contactDescription: { type: String }, // 🆕 Added field
+    videoFile: { type: String },
+    contactDescription: { type: String },
 
     isPrior: { type: Boolean, default: false },
     toHomePage: { type: Boolean, default: false },

@@ -16,7 +16,6 @@ const Header: React.FC<HeaderProps> = ({ visible = true }) => {
 
   const location = useLocation();
 
-  // ---------------- ROUTE BASED COLOR ----------------
   useEffect(() => {
     const lightRoutes = ["/architecture", "/architecture/all", "/interior", "/interior/all", "/objects", "/objects/all", "/exhibition", "/exhibition/all", "/about", "/press", "/project"];
 
@@ -30,12 +29,10 @@ const Header: React.FC<HeaderProps> = ({ visible = true }) => {
     setIsDark(!isLight);
   }, [location]);
 
-  // ---------------- BODY SCROLL LOCK FOR MOBILE MENU ----------------
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "auto";
   }, [menuOpen]);
 
-  // ---------------- SHOW BACK TO TOP BUTTON ----------------
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 200) setShowTopBtn(true);
@@ -45,9 +42,9 @@ const Header: React.FC<HeaderProps> = ({ visible = true }) => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const textColor = isDark ? "text-white" : "text-black";
-  const hoverColor = isDark ? "hover:text-white/80" : "hover:text-black/80";
-  const underlineColor = isDark ? "after:bg-white" : "after:bg-black";
+  const textColor = isDark ? "text-white" : "text-[#0000B5]";
+  const hoverColor = isDark ? "hover:text-white/80" : "hover:text-[#0000B5]/80";
+  const underlineColor = isDark ? "after:bg-white" : "after:bg-[#0000B5]";
 
   const navItems = [
     { label: "Architecture", path: "/architecture/all" },
@@ -64,14 +61,12 @@ const Header: React.FC<HeaderProps> = ({ visible = true }) => {
 
   return (
     <>
-      {/* ---------------- HEADER NON-STICKY ---------------- */}
       <header className={`${location.pathname === "/" ? "absolute" : "relative"} top-0 left-0 w-full z-40 transition-all duration-300`}>
-        {/* ---------- DESKTOP ---------- */}
         <div
           className={`hidden md:flex justify-between items-center h-16 px-8
           ${location.pathname === "/" ? "bg-transparent" : isDark ? "bg-transparent" : "bg-white/90 backdrop-blur-md"}`}
         >
-          <h1 className={`text-2xl cursor-pointer ${textColor} ${hoverColor}`}>
+          <h1 className={`text-2xl cursor-pointer font-bold ${textColor} ${hoverColor}`}>
             <Link to="/" onClick={handleLinkClick}>
               LİNEDORİ
             </Link>
@@ -85,7 +80,7 @@ const Header: React.FC<HeaderProps> = ({ visible = true }) => {
                 onClick={handleLinkClick}
                 className={`relative ${textColor} ${hoverColor}
                   after:content-[''] after:absolute after:left-0 after:-bottom-1 after:h-[2px]
-                  after:w-full ${underlineColor}
+                  after:w-full ${underlineColor} font-semibold
                   hover:after:block after:hidden`}
               >
                 {item.label}
@@ -94,12 +89,11 @@ const Header: React.FC<HeaderProps> = ({ visible = true }) => {
           </nav>
         </div>
 
-        {/* ---------- MOBILE ---------- */}
         <div
           className={`md:hidden flex justify-between items-center px-5 h-16
           ${isDark ? "bg-transparent" : "bg-white/90 backdrop-blur-md"}`}
         >
-          <h1 className={`text-xl  ${textColor}`}>
+          <h1 className={`text-xl font-bold  ${textColor}`}>
             <Link to="/" onClick={handleLinkClick}>
               LİNEDORİ
             </Link>
@@ -110,17 +104,16 @@ const Header: React.FC<HeaderProps> = ({ visible = true }) => {
           </button>
         </div>
 
-        {/* ---------- MOBILE FULLSCREEN MODAL ---------- */}
         {menuOpen && (
           <div className="fixed top-0 left-0 w-screen h-screen bg-white z-[999] flex flex-col justify-between animate-slideDown">
             <button className="absolute top-6 right-6 text-black hover:opacity-70 cursor-pointer" onClick={() => setMenuOpen(false)}>
               <X size={36} />
             </button>
-            <button className="absolute top-8 left-8 text-xl cursor-pointer text-black  hover:opacity-70" onClick={() => navigate("/")}>
+            <button className="absolute top-8 left-8 text-xl cursor-pointer text-[#0000B5] font-bold hover:opacity-70" onClick={() => navigate("/")}>
               LİNEDORİ
             </button>
 
-            <nav className="flex flex-col space-y-6 text-lg  text-black px-8 mt-20">
+            <nav className="flex flex-col space-y-6 text-lg  text-[#0000B5] font-semibold px-8 mt-20">
               {navItems.map((item, idx) => (
                 <Link
                   key={idx}
@@ -148,7 +141,6 @@ const Header: React.FC<HeaderProps> = ({ visible = true }) => {
         `}</style>
       </header>
 
-      {/* ---------------- BACK TO TOP BUTTON (SMALL, NO SHADOW) ---------------- */}
       {showTopBtn && (
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}

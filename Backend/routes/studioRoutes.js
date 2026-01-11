@@ -1,6 +1,6 @@
 import express from "express";
 import { getStudios, getStudioById, createStudio, updateStudio, deleteStudio } from "../controllers/studioController.js";
-import upload from "../middleware/uploadMiddleware.js"; // if using multer
+import upload from "../middleware/uploadMiddleware.js";
 
 const router = express.Router();
 

@@ -1,6 +1,5 @@
 import Studio from "../models/studioModel.js";
 
-// Get all studio entries
 export const getStudios = async (req, res) => {
   try {
     const studios = await Studio.find().sort({ createdAt: -1 });
@@ -10,7 +9,6 @@ export const getStudios = async (req, res) => {
   }
 };
 
-// Get one studio
 export const getStudioById = async (req, res) => {
   try {
     const studio = await Studio.findById(req.params.id);
@@ -21,7 +19,6 @@ export const getStudioById = async (req, res) => {
   }
 };
 
-// Create studio
 export const createStudio = async (req, res) => {
   try {
     const { title, description, location, contact, email } = req.body;
@@ -34,7 +31,6 @@ export const createStudio = async (req, res) => {
   }
 };
 
-// Update studio
 export const updateStudio = async (req, res) => {
   try {
     const { title, description, location, contact, email } = req.body;
@@ -50,7 +46,6 @@ export const updateStudio = async (req, res) => {
   }
 };
 
-// Delete studio
 export const deleteStudio = async (req, res) => {
   try {
     const studio = await Studio.findByIdAndDelete(req.params.id);

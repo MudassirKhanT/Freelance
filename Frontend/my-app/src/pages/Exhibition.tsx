@@ -7,10 +7,11 @@ import Header from "@/components/layout/Header";
 const Exhibition: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const navigate = useNavigate();
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/projects")
+      .get(`${backendUrl}/api/projects`)
       .then((res) => setProjects(res.data))
       .catch((err) => console.error("Error fetching projects:", err));
   }, []);
@@ -19,22 +20,18 @@ const Exhibition: React.FC = () => {
 
   return (
     <div className="relative w-full bg-white">
-      {/* Header */}
       <div className="absolute top-0 left-0 w-full z-20">
         <Header />
       </div>
 
-      {/* Content */}
       <div className="w-full pt-28 pb-12">
         {filteredProjects.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-[2px] w-full">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
             {filteredProjects.slice(0, 30).map((project) => (
               <div key={project._id} onClick={() => navigate(`/projects/${project._id}`)} className="relative cursor-pointer group">
-                {/* Image wrapper to maintain aspect ratio */}
                 <div className="w-full">
-                  {/* First Image */}
                   <img
-                    src={`http://localhost:5000/${project.images[0]}`}
+                    src={`${backendUrl}/${project.images[0]}`}
                     alt={project.title}
                     className="
                 w-full h-auto
@@ -45,10 +42,9 @@ const Exhibition: React.FC = () => {
               "
                   />
 
-                  {/* Second Image (hover swap) */}
                   {project.images[1] && (
                     <img
-                      src={`http://localhost:5000/${project.images[1]}`}
+                      src={`${backendUrl}/${project.images[1]}`}
                       alt={project.title}
                       className="
                   w-full h-auto
@@ -62,7 +58,6 @@ const Exhibition: React.FC = () => {
                   )}
                 </div>
 
-                {/* Overlay text */}
                 <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/70 to-transparent p-4 sm:p-6 text-white">
                   <h2 className="text-lg sm:text-xl font-semibold">{project.title}</h2>
                 </div>
@@ -70,7 +65,6 @@ const Exhibition: React.FC = () => {
             ))}
           </div>
         ) : (
-          // Coming Soon Section
           <div className="flex flex-col items-center justify-center h-[60vh] text-center">
             <h2 className="text-4xl sm:text-5xl font-bold text-gray-800 mb-4 animate-pulse">Coming Soon</h2>
             <p className="text-base sm:text-lg text-gray-600 max-w-md">

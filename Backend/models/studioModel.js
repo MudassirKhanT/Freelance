@@ -7,7 +7,7 @@ const studioSchema = new mongoose.Schema(
     location: { type: String },
     contact: { type: String },
     email: { type: String },
-    image: { type: String }, // optional banner image
+    image: { type: String },
   },
   { timestamps: true }
 );
