@@ -58,20 +58,39 @@ const About = () => {
   };
 
   return (
-    <div className="relative bg-[#E4DECD] text-black overflow-x-hidden">
+    <div className="relative bg-white text-black overflow-x-hidden">
       <div className="absolute top-0 left-0 w-full z-20">
         <Header />
       </div>
 
-      <div className="container mx-auto px-4 pt-28  flex space-x-6 justify-start">
+      <div
+        className="
+    container mx-auto
+    px-4 sm:px-4
+    pt-28 pb-8
+    flex flex-nowrap sm:flex-wrap
+    gap-2 sm:gap-4
+    justify-start
+    max-w-full
+    overflow-x-auto
+  "
+      >
         {tabs.map((tab) => {
           const isActive = activeTab === tab;
           return (
             <button
               key={tab}
               onClick={() => handleTabClick(tab)}
-              className={`md:px-5 px-2 relative py-1 text-base font-semibold cursor-pointer transition-all duration-300     ${isActive ? "text-[#0000B5]" : "text-gray-500 hover:text-[#0000B5]"}
-`}
+              className={`
+          px-2 sm:px-5
+          py-1
+          font-semibold
+          text-md sm:text-base
+          whitespace-nowrap
+          cursor-pointer
+          transition-colors duration-300
+          ${isActive ? "text-[#0000B5]" : "text-gray-500 hover:text-[#0000B5]"}
+        `}
             >
               {tab.charAt(0).toUpperCase() + tab.slice(1)}
             </button>
@@ -79,7 +98,7 @@ const About = () => {
         })}
       </div>
 
-      <section id="studio" className="flex flex-col md:flex-row items-center justify-center min-h-screen bg-[#E4DECD] 2xl:px-24">
+      <section id="studio" className="flex flex-col md:flex-row items-center justify-center min-h-screen bg-white 2xl:px-5">
         <div className="w-full md:w-1/2 h-[40vh] md:h-screen">{studio?.image ? <img src={`${backendUrl}${studio.image}`} alt={studio.title} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center bg-gray-200 text-gray-500">No Image Available</div>}</div>
 
         <div className="w-full md:w-1/2 p-8 md:p-16 text-center md:text-left">
@@ -93,7 +112,7 @@ const About = () => {
         </div>
       </section>
 
-      <section id="people" className="bg-[#E4DECD] py-16 sm:py-20 2xl:max-w-[1400px] 2xl:mx-auto">
+      <section id="people" className="bg-white py-16 sm:py-20 2xl:max-w-[1400px] 2xl:mx-auto">
         {/* ---------- HEADING ---------- */}
         <div className="text-center mb-14 sm:mb-20 px-4 sm:px-6">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-['Times_New_Roman'] font-semibold text-[#0000B5] mb-3 sm:mb-4">Our Team</h2>
@@ -139,7 +158,7 @@ const About = () => {
         </div>
       </section>
 
-      <section id="press" className="bg-[#E4DECD] py-3 px-1 text-center 2xl:max-w-[1400px] 2xl:mx-auto">
+      <section id="press" className="bg-white py-3 px-1 text-center 2xl:max-w-[1400px] 2xl:mx-auto">
         <h2 className="text-3xl md:text-4xl font-bold mb-4 font-['Times_New_Roman'] text-[#0000B5]">Press & Media</h2>
         <p className="text-[#0000B5] max-w-2xl mx-auto mb-8 text-base md:text-lg">Explore our latest mentions, collaborations, and design recognitions.</p>
         <a href="/press" className="inline-block text-[#0000B5] hover:text-[#0000B7] font-medium transition-all duration-300">

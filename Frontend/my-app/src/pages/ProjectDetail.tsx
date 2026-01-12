@@ -30,6 +30,11 @@ const ProjectDetail: React.FC = () => {
       .catch(console.error);
   }, [id]);
 
+  /* ---------------- SCROLL TO TOP ON PROJECT CHANGE ---------------- */
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "auto" });
+  }, [id]);
+
   /* ---------------- HEADER SHOW / HIDE ---------------- */
   useEffect(() => {
     const onScroll = () => {
@@ -95,19 +100,17 @@ const ProjectDetail: React.FC = () => {
   if (!project) return <p className="pt-20 text-center">Loading...</p>;
 
   return (
-    <div className="w-full  overflow-x-hidden">
+    <div className="w-full overflow-x-hidden">
       <Header visible={headerVisible} />
 
       {/* ---------------- COVER IMAGE ---------------- */}
       <div
         className="
-    relative w-full
-    overflow-hidden
-    p-0 pb-0            
-    md:pb-0
-    md:h-auto md:aspect-[1800/1402]
-    cursor-pointer
-  "
+        relative w-full
+        overflow-hidden
+        cursor-pointer
+        md:h-screen
+      "
         onClick={(e) => {
           const target = e.target as HTMLElement;
           if (target.closest("header") || target.closest(".header-modal")) return;
@@ -119,18 +122,19 @@ const ProjectDetail: React.FC = () => {
           alt={project.title}
           draggable={false}
           className="
-    w-full h-auto
-    object-contain
-    block
+          w-full h-auto
+          object-contain
+          block
 
-    md:absolute md:inset-0
-    md:w-full md:h-full md:object-cover
-  "
+          md:absolute md:inset-0
+          md:w-full md:h-full
+          md:object-cover md:object-center
+        "
         />
       </div>
 
       {/* ---------------- INFO SECTION ---------------- */}
-      <div className="container mx-auto px-6 md:px-10 py-14">
+      <div className="container mx-auto px-6 md:px-10 py-14 md:mt-3">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div className="text-center flex flex-col items-center gap-6">
             <h2 className="text-xl md:text-3xl font-bold text-[#0000B5]">{project.title}</h2>
@@ -148,9 +152,9 @@ const ProjectDetail: React.FC = () => {
 
             <div className="flex gap-6">
               {project.pdfFile && (
-                <a href={`${backendUrl}/${project.pdfFile}`} download className="inline-flex items-center gap-2 text-[#0000B5]">
-                  <FileDown className="w-5 h-5" />
-                  Download PDF
+                <a href={`${backendUrl}/${project.pdfFile}`} download className="inline-flex font-semibold hover:underline transition items-center gap-2 text-[#0000B5] underline-offset-4">
+                  <FileDown className="w-5 h-5 " />
+                  specs
                 </a>
               )}
               <ObjectsContact projectTitle={project.title} />
@@ -178,24 +182,24 @@ const ProjectDetail: React.FC = () => {
               <div
                 key={idx}
                 onClick={() => {
-                  scrollPositionRef.current = window.scrollY; // ✅ ADDED
+                  scrollPositionRef.current = window.scrollY;
                   setSelectedIndex(idx + 1);
                 }}
                 className={`
-                  overflow-hidden cursor-pointer bg-gray-50
-                  ${isLandscape ? "md:col-span-2" : "md:col-span-1"}
-                  md:h-[550px] sm:h-[320px]
-                `}
+                overflow-hidden cursor-pointer bg-gray-50
+                ${isLandscape ? "md:col-span-2" : "md:col-span-1"}
+                md:h-[550px] sm:h-[320px]
+              `}
               >
                 <img
                   src={`${backendUrl}/${img}`}
                   alt={`${project.title} ${idx}`}
                   className="
-                    w-full
-                    h-auto
-                    object-contain
-                    md:h-full md:object-fill
-                  "
+                  w-full
+                  h-auto
+                  object-contain
+                  md:h-full md:object-fill
+                "
                 />
               </div>
             );

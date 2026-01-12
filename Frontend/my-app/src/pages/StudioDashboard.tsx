@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import API from "../services/api";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Trash2, Edit } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Edit, Trash2 } from "lucide-react";
 
 interface Studio {
   _id: string;
@@ -13,22 +13,50 @@ interface Studio {
   contact: string;
   email: string;
   image?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 const StudioDashboard = () => {
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
   const [studios, setStudios] = useState<Studio[]>([]);
   const [form, setForm] = useState<Partial<Studio>>({});
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  /* ---------------- ALERT ---------------- */
+  const [alert, setAlert] = useState<{ type: "success" | "error" | ""; message: string }>({
+    type: "",
+    message: "",
+  });
+
+  /* ---------------- AUTO CLEAR ALERT ---------------- */
+  useEffect(() => {
+    if (alert.message) {
+      const timer = setTimeout(() => setAlert({ type: "", message: "" }), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [alert]);
+
+  /* ---------------- FETCH STUDIOS ---------------- */
   const fetchStudios = async () => {
     try {
       const res = await API.get("/studio");
-      setStudios(res.data);
+
+      // 🔥 latest updated/created first
+      const sorted = res.data.sort((a: Studio, b: Studio) => {
+        const aTime = new Date(a.updatedAt || a.createdAt || "").getTime();
+        const bTime = new Date(b.updatedAt || b.createdAt || "").getTime();
+        return bTime - aTime;
+      });
+
+      setStudios(sorted);
     } catch (err) {
-      console.error(err);
+      setAlert({ type: "error", message: "Failed to load studios ❌" });
     }
   };
 
@@ -36,6 +64,7 @@ const StudioDashboard = () => {
     fetchStudios();
   }, []);
 
+  /* ---------------- HANDLE IMAGE ---------------- */
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -44,6 +73,16 @@ const StudioDashboard = () => {
     }
   };
 
+  /* ---------------- RESET FORM ---------------- */
+  const resetForm = () => {
+    setForm({});
+    setImageFile(null);
+    setPreview(null);
+    setEditingId(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  /* ---------------- SUBMIT ---------------- */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -55,31 +94,20 @@ const StudioDashboard = () => {
 
     try {
       if (editingId) {
-        await API.put(`/studio/${editingId}`, formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
+        await API.put(`/studio/${editingId}`, formData, { headers: { "Content-Type": "multipart/form-data" } });
+        setAlert({ type: "success", message: "Studio updated successfully ✅" });
       } else {
-        await API.post("/studio", formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
+        await API.post("/studio", formData, { headers: { "Content-Type": "multipart/form-data" } });
+        setAlert({ type: "success", message: "Studio added successfully 🎉" });
       }
-      alert("✅ Studio saved successfully!");
       resetForm();
       fetchStudios();
-    } catch (err) {
-      console.error(err);
-      alert("❌ Failed to save studio");
+    } catch (err: any) {
+      setAlert({ type: "error", message: err.response?.data?.message || "Failed to save studio ❌" });
     }
   };
 
-  const resetForm = () => {
-    setForm({});
-    setImageFile(null);
-    setPreview(null);
-    setEditingId(null);
-    (document.getElementById("imageInput") as HTMLInputElement).value = "";
-  };
-
+  /* ---------------- EDIT ---------------- */
   const handleEdit = (studio: Studio) => {
     setForm({
       title: studio.title,
@@ -89,23 +117,36 @@ const StudioDashboard = () => {
       email: studio.email,
     });
     setEditingId(studio._id);
-    if (studio.image) setPreview(`${backendUrl}${studio.image}`);
+    setPreview(studio.image ? `${backendUrl}${studio.image}` : null);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  /* ---------------- DELETE ---------------- */
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this studio?")) return;
     try {
       await API.delete(`/studio/${id}`);
+      setAlert({ type: "success", message: "Studio deleted successfully 🗑️" });
       fetchStudios();
     } catch (err) {
-      console.error(err);
+      setAlert({ type: "error", message: "Failed to delete studio ❌" });
     }
   };
 
   return (
-    <div className="p-4">
-      <div className="bg-white shadow-md rounded-xl p-6 max-w-2xl mx-auto mb-8">
-        <h2 className="text-xl font-semibold mb-4">{editingId ? "Edit Studio" : "Create Studio"}</h2>
+    <div className="p-4 max-w-6xl mx-auto space-y-10">
+      {/* ---------------- FORM ---------------- */}
+      <div className="bg-white shadow-md rounded-xl p-6">
+        <h2 className="text-2xl font-bold mb-6">{editingId ? "Edit Studio" : "Add New Studio"}</h2>
+
+        {alert.message && (
+          <div
+            className={`mb-6 rounded-lg px-4 py-3 text-sm font-medium border
+              ${alert.type === "success" ? "bg-green-100 text-green-800 border-green-300" : "bg-red-100 text-red-800 border-red-300"}`}
+          >
+            {alert.message}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input placeholder="Title" value={form.title || ""} onChange={(e) => setForm({ ...form, title: e.target.value })} />
@@ -114,37 +155,45 @@ const StudioDashboard = () => {
           <Input placeholder="Contact" value={form.contact || ""} onChange={(e) => setForm({ ...form, contact: e.target.value })} />
           <Input placeholder="Email" value={form.email || ""} onChange={(e) => setForm({ ...form, email: e.target.value })} />
 
-          <Input id="imageInput" type="file" accept="image/*" onChange={handleImageChange} />
+          <div className="w-full">
+            <div onClick={() => fileInputRef.current?.click()} className="border rounded-lg px-4 py-3 bg-white text-gray-500 cursor-pointer hover:border-gray-400 transition">
+              {imageFile ? imageFile.name : "Choose an image (PNG, JPG, JPEG)"}
+            </div>
+            <input type="file" accept="image/*" onChange={handleImageChange} ref={fileInputRef} className="hidden" />
+          </div>
 
-          {preview && <img src={preview} alt="preview" className="rounded-lg shadow-md w-full h-48 object-cover mt-2" />}
+          {preview && <img src={preview} alt="Preview" className="h-48 w-full object-cover rounded-lg shadow-md mt-2" />}
 
-          <Button type="submit" className="w-full">
-            {editingId ? "Update Studio" : "Create Studio"}
+          <Button type="submit" className="w-full bg-black text-white hover:bg-gray-800">
+            {editingId ? "Update Studio" : "Add Studio"}
           </Button>
         </form>
       </div>
 
+      {/* ---------------- STUDIO LIST ---------------- */}
       <div className="bg-white shadow-md rounded-xl p-6">
-        <h2 className="text-xl font-semibold mb-4">Studios</h2>
+        <h2 className="text-xl font-semibold mb-6">Studios</h2>
 
         {studios.length === 0 ? (
           <p className="text-gray-500">No studio entries yet.</p>
         ) : (
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {studios.map((studio) => (
-              <div key={studio._id} className="border rounded-xl p-4 shadow-sm bg-gray-50">
-                <h3 className="font-bold text-lg">{studio.title}</h3>
-                <p className="text-sm text-gray-600">{studio.location}</p>
-                <p className="mt-2 text-gray-700 line-clamp-3">{studio.description}</p>
-                {studio.image && <img src={`${backendUrl}${studio.image}`} alt={studio.title} className="mt-2 rounded-lg h-32 w-full object-cover" />}
+              <div key={studio._id} className="border rounded-xl shadow-sm bg-gray-50 hover:shadow-lg transition-all">
+                {studio.image && <img src={`${backendUrl}${studio.image}`} alt={studio.title} className="rounded-t-xl w-full h-48 object-cover" />}
+                <div className="p-4">
+                  <h3 className="font-bold text-lg mb-1">{studio.title}</h3>
+                  <p className="text-sm text-gray-600">{studio.location}</p>
+                  <p className="mt-2 text-gray-700 line-clamp-3">{studio.description}</p>
 
-                <div className="flex gap-2 mt-4">
-                  <Button variant="outline" className="flex-1" onClick={() => handleEdit(studio)}>
-                    <Edit className="w-4 h-4 mr-1" /> Edit
-                  </Button>
-                  <Button variant="destructive" className="flex-1" onClick={() => handleDelete(studio._id)}>
-                    <Trash2 className="w-4 h-4 mr-1" /> Delete
-                  </Button>
+                  <div className="flex gap-2 mt-4">
+                    <Button variant="outline" className="flex-1" onClick={() => handleEdit(studio)}>
+                      <Edit className="w-4 h-4 mr-1" /> Edit
+                    </Button>
+                    <Button variant="destructive" className="flex-1" onClick={() => handleDelete(studio._id)}>
+                      <Trash2 className="w-4 h-4 mr-1" /> Delete
+                    </Button>
+                  </div>
                 </div>
               </div>
             ))}

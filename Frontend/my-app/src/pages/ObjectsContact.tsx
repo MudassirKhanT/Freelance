@@ -48,7 +48,7 @@ const ObjectsContact: React.FC<Props> = ({ projectTitle }) => {
     <>
       <button onClick={() => setModalOpen(true)} className="flex items-center cursor-pointer gap-2 text-[#0000B5] hover:underline transition text-base font-semibold underline-offset-4 ">
         <Mail className="w-4 h-4" />
-        Get in Touch
+        contact
       </button>
 
       {modalOpen && (

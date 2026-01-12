@@ -15,14 +15,35 @@ const PeopleDashboard = () => {
   });
   const [preview, setPreview] = useState(null);
   const [editId, setEditId] = useState(null);
+
+  const [alert, setAlert] = useState({
+    type: "",
+    message: "",
+  });
+
   const fileInputRef = useRef(null);
 
+  /* ---------------- AUTO CLEAR ALERT ---------------- */
+  useEffect(() => {
+    if (alert.message) {
+      const timer = setTimeout(() => {
+        setAlert({ type: "", message: "" });
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [alert]);
+
+  /* ---------------- FETCH TEAM ---------------- */
   const fetchTeam = async () => {
     try {
       const res = await axios.get("/team");
       setTeam(res.data);
     } catch (err) {
-      console.error("Error fetching team:", err);
+      setAlert({
+        type: "error",
+        message: "Failed to load team members ❌",
+      });
     }
   };
 
@@ -30,46 +51,72 @@ const PeopleDashboard = () => {
     fetchTeam();
   }, []);
 
+  /* ---------------- HANDLE INPUT CHANGE ---------------- */
   const handleChange = (e) => {
     const { name, value, files } = e.target;
+
     if (name === "image" && files && files[0]) {
       const file = files[0];
-      setFormData({ ...formData, image: file });
+      setFormData((prev) => ({ ...prev, image: file }));
       setPreview(URL.createObjectURL(file));
     } else {
-      setFormData({ ...formData, [name]: value });
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
+  /* ---------------- SUBMIT FORM ---------------- */
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
       const data = new FormData();
       data.append("name", formData.name);
       data.append("role", formData.role);
       data.append("description", formData.description);
-      if (formData.image) data.append("image", formData.image);
+
+      if (formData.image) {
+        data.append("image", formData.image);
+      }
 
       if (editId) {
-        await axios.put(`/team/${editId}`, data, {
-          headers: { "Content-Type": "multipart/form-data" },
+        await axios.put(`/team/${editId}`, data);
+        setAlert({
+          type: "success",
+          message: "Team member updated successfully ✅",
         });
       } else {
-        await axios.post("/team", data, {
-          headers: { "Content-Type": "multipart/form-data" },
+        await axios.post("/team", data);
+        setAlert({
+          type: "success",
+          message: "Team member added successfully 🎉",
         });
       }
 
-      setFormData({ name: "", role: "", description: "", image: null });
+      // Reset form
+      setFormData({
+        name: "",
+        role: "",
+        description: "",
+        image: null,
+      });
+
       setPreview(null);
       setEditId(null);
-      if (fileInputRef.current) fileInputRef.current.value = "";
+
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+
       fetchTeam();
     } catch (err) {
-      console.error("Error saving member:", err);
+      setAlert({
+        type: "error",
+        message: err.response?.data?.message || "Something went wrong ❌",
+      });
     }
   };
 
+  /* ---------------- EDIT MEMBER ---------------- */
   const handleEdit = (member) => {
     setFormData({
       name: member.name,
@@ -77,17 +124,27 @@ const PeopleDashboard = () => {
       description: member.description,
       image: null,
     });
+
     setPreview(member.image ? `${backendUrl}${member.image}` : null);
     setEditId(member._id);
   };
 
+  /* ---------------- DELETE MEMBER ---------------- */
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this member?")) return;
+
     try {
       await axios.delete(`/team/${id}`);
+      setAlert({
+        type: "success",
+        message: "Team member deleted successfully 🗑️",
+      });
       fetchTeam();
     } catch (err) {
-      console.error("Error deleting member:", err);
+      setAlert({
+        type: "error",
+        message: "Failed to delete team member ❌",
+      });
     }
   };
 
@@ -95,18 +152,34 @@ const PeopleDashboard = () => {
     <div className="max-w-6xl mx-auto p-6 bg-white shadow-md rounded-xl">
       <h2 className="text-2xl font-bold mb-6">Team Management</h2>
 
+      {/* ---------------- ALERT ---------------- */}
+      {alert.message && (
+        <div
+          className={`mb-6 rounded-lg px-4 py-3 text-sm font-medium border
+            ${alert.type === "success" ? "bg-green-100 text-green-800 border-green-300" : "bg-red-100 text-red-800 border-red-300"}`}
+        >
+          {alert.message}
+        </div>
+      )}
+
+      {/* ---------------- FORM ---------------- */}
       <form onSubmit={handleSubmit} className="space-y-4 bg-gray-50 p-6 rounded-lg shadow-sm mb-12">
         <input type="text" name="name" placeholder="Name" value={formData.name} onChange={handleChange} className="border p-2 w-full rounded" required />
+
         <input type="text" name="role" placeholder="Role" value={formData.role} onChange={handleChange} className="border p-2 w-full rounded" required />
+
         <textarea name="description" placeholder="Description" value={formData.description} onChange={handleChange} className="border p-2 w-full rounded" />
+
+        {/* FILE INPUT */}
         <div className="w-full">
           <div onClick={() => fileInputRef.current?.click()} className="border rounded-lg px-4 py-3 bg-white text-gray-500 cursor-pointer hover:border-gray-400 transition">
-            {formData.image ? formData.image.name : "Choose an image (PNG, JPG, JPEG)"}
+            {formData.image ? formData.image.name : "Choose an image (PNG, JPG, JPEG, WEBP)"}
           </div>
 
-          <input type="file" name="image" accept="image/*" onChange={handleChange} ref={fileInputRef} className="hidden" />
+          <input type="file" name="image" accept="image/*,.webp" onChange={handleChange} ref={fileInputRef} className="hidden" />
         </div>
 
+        {/* PREVIEW */}
         {preview && (
           <div className="mt-3">
             <img src={preview} alt="Preview" className="h-48 w-48 object-contain rounded-lg border shadow-sm bg-white" />
@@ -118,6 +191,7 @@ const PeopleDashboard = () => {
         </button>
       </form>
 
+      {/* ---------------- TEAM LIST ---------------- */}
       <div className="bg-white shadow-md rounded-xl p-6">
         <h2 className="text-xl font-semibold mb-6">People</h2>
 
@@ -129,13 +203,6 @@ const PeopleDashboard = () => {
               <div className="p-4">
                 <h3 className="font-bold text-lg mb-1">{member.name}</h3>
                 <p className="text-sm text-gray-600 mb-2">{member.role}</p>
-
-                {member.pdfFile && (
-                  <a href={`${backendUrl}/${member.pdfFile}`} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex items-center justify-center gap-2 bg-black text-white font-medium px-6 py-2 rounded-lg shadow-sm hover:bg-gray-800 transition-all w-full">
-                    <FileText className="w-5 h-5" />
-                    <span>View PDF</span>
-                  </a>
-                )}
 
                 <div className="flex gap-2 mt-4">
                   <Button variant="outline" className="flex-1" onClick={() => handleEdit(member)}>

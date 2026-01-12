@@ -10,11 +10,16 @@ interface PressItem {
   image: string;
   description: string;
   link: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 const PressDashboard = () => {
-  const [press, setPress] = useState<PressItem[]>([]);
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
+  const [press, setPress] = useState<PressItem[]>([]);
+  const [editId, setEditId] = useState<string | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
 
   const [form, setForm] = useState<any>({
     title: "",
@@ -23,10 +28,16 @@ const PressDashboard = () => {
     description: "",
     link: "",
   });
-  const [editId, setEditId] = useState<string | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
+
+  /* ---------------- ALERT ---------------- */
+  const [alert, setAlert] = useState<{ type: "success" | "error" | ""; message: string }>({
+    type: "",
+    message: "",
+  });
+
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
+  /* ---------------- PAGINATION ---------------- */
   const [currentPage, setCurrentPage] = useState(1);
   const pressPerPage = 9;
   const indexOfLast = currentPage * pressPerPage;
@@ -34,12 +45,35 @@ const PressDashboard = () => {
   const currentPress = press.slice(indexOfFirst, indexOfLast);
   const totalPages = Math.ceil(press.length / pressPerPage);
 
+  /* ---------------- AUTO CLEAR ALERT ---------------- */
+  useEffect(() => {
+    if (alert.message) {
+      const timer = setTimeout(() => {
+        setAlert({ type: "", message: "" });
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [alert]);
+
+  /* ---------------- FETCH PRESS ---------------- */
   const fetchPress = async () => {
     try {
       const res = await axios.get("/press");
-      setPress(res.data);
+
+      // 🔥 LATEST UPDATED / ADDED FIRST
+      const sorted = res.data.sort((a: PressItem, b: PressItem) => {
+        const aTime = new Date(a.updatedAt || a.createdAt || "").getTime();
+        const bTime = new Date(b.updatedAt || b.createdAt || "").getTime();
+        return bTime - aTime;
+      });
+
+      setPress(sorted);
+      setCurrentPage(1);
     } catch (err) {
-      console.error("Error fetching press:", err);
+      setAlert({
+        type: "error",
+        message: "Failed to load press ❌",
+      });
     }
   };
 
@@ -47,8 +81,10 @@ const PressDashboard = () => {
     fetchPress();
   }, []);
 
+  /* ---------------- HANDLE CHANGE ---------------- */
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, files } = e.target as HTMLInputElement;
+
     if (name === "image" && files && files[0]) {
       const file = files[0];
       setForm({ ...form, image: file });
@@ -58,8 +94,10 @@ const PressDashboard = () => {
     }
   };
 
+  /* ---------------- SUBMIT ---------------- */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     try {
       const data = new FormData();
       data.append("title", form.title);
@@ -69,26 +107,39 @@ const PressDashboard = () => {
       if (form.image) data.append("image", form.image);
 
       if (editId) {
-        await axios.put(`/press/${editId}`, data, { headers: { "Content-Type": "multipart/form-data" } });
+        await axios.put(`/press/${editId}`, data);
+        setAlert({
+          type: "success",
+          message: "Press updated successfully ✅",
+        });
       } else {
-        await axios.post("/press", data, { headers: { "Content-Type": "multipart/form-data" } });
+        await axios.post("/press", data);
+        setAlert({
+          type: "success",
+          message: "Press added successfully 🎉",
+        });
       }
 
       setForm({ title: "", date: "", image: null, description: "", link: "" });
       setEditId(null);
       setPreview(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
+
       fetchPress();
-    } catch (err) {
-      console.error("Error saving press:", err);
+    } catch (err: any) {
+      setAlert({
+        type: "error",
+        message: err.response?.data?.message || "Something went wrong ❌",
+      });
     }
   };
 
+  /* ---------------- EDIT ---------------- */
   const handleEdit = (item: PressItem) => {
     setForm({
       title: item.title,
       date: item.date,
-      image: item.image,
+      image: null,
       description: item.description,
       link: item.link,
     });
@@ -97,13 +148,23 @@ const PressDashboard = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  /* ---------------- DELETE ---------------- */
   const handleDelete = async (id?: string) => {
     if (!id) return;
+    if (!window.confirm("Are you sure you want to delete this press?")) return;
+
     try {
       await axios.delete(`/press/${id}`);
+      setAlert({
+        type: "success",
+        message: "Press deleted successfully 🗑️",
+      });
       fetchPress();
     } catch (err) {
-      console.error("Error deleting press:", err);
+      setAlert({
+        type: "error",
+        message: "Failed to delete press ❌",
+      });
     }
   };
 
@@ -112,38 +173,46 @@ const PressDashboard = () => {
       <div className="bg-white shadow-md rounded-xl p-6">
         <h2 className="text-2xl font-bold mb-6">{editId ? "Edit Press" : "Add New Press"}</h2>
 
+        {/* ---------------- ALERT ---------------- */}
+        {alert.message && (
+          <div
+            className={`mb-6 rounded-lg px-4 py-3 text-sm font-medium border
+              ${alert.type === "success" ? "bg-green-100 text-green-800 border-green-300" : "bg-red-100 text-red-800 border-red-300"}`}
+          >
+            {alert.message}
+          </div>
+        )}
+
+        {/* ---------------- FORM ---------------- */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <input type="text" name="title" placeholder="Title" className="w-full border p-2 rounded" value={form.title} onChange={handleChange} required />
           <input type="date" name="date" className="w-full border p-2 rounded" value={form.date} onChange={handleChange} required />
-          <div className="w-full">
-            <div onClick={() => fileInputRef.current?.click()} className="w-full border rounded-lg px-4 py-3 bg-white text-gray-500 cursor-pointer hover:border-gray-400 transition">
-              {FormData.image ? FormData.image.name : "Choose an image (PNG, JPG, JPEG)"}
-            </div>
 
+          <div className="w-full">
+            <div onClick={() => fileInputRef.current?.click()} className="border rounded-lg px-4 py-3 bg-white text-gray-500 cursor-pointer hover:border-gray-400 transition">
+              {form.image ? form.image.name : "Choose an image (PNG, JPG, JPEG)"}
+            </div>
             <input type="file" name="image" accept="image/*" onChange={handleChange} ref={fileInputRef} className="hidden" />
           </div>
 
-          {preview && (
-            <div className="mt-2">
-              <img src={preview} alt="Preview" className="h-32 w-32 object-cover rounded border" />
-            </div>
-          )}
+          {preview && <img src={preview} alt="Preview" className="h-32 w-32 object-cover rounded border" />}
 
           <textarea name="description" placeholder="Description" className="w-full border p-2 rounded" value={form.description} onChange={handleChange} />
           <input type="text" name="link" placeholder="Press Link" className="w-full border p-2 rounded" value={form.link} onChange={handleChange} />
 
-          <button type="submit" className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800 transition">
+          <button type="submit" className="bg-black text-white px-6 py-2 rounded hover:bg-gray-800 transition">
             {editId ? "Update Press" : "Add Press"}
           </button>
         </form>
       </div>
 
+      {/* ---------------- PRESS LIST ---------------- */}
       <div className="bg-white shadow-md rounded-xl p-6">
         <h2 className="text-xl font-semibold mb-6">Press</h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {currentPress.map((p) => (
-            <div key={p._id} className="border rounded-xl shadow-sm bg-gray-50 hover:shadow-lg transition-all duration-300">
+            <div key={p._id} className="border rounded-xl shadow-sm bg-gray-50 hover:shadow-lg transition-all">
               {p.image && <img src={`${backendUrl}${p.image}`} alt={p.title} className="rounded-t-xl w-full h-52 object-cover" />}
 
               <div className="p-4">
@@ -151,9 +220,8 @@ const PressDashboard = () => {
                 <p className="text-sm text-gray-600 mb-2">{p.date}</p>
 
                 {p.link && (
-                  <a href={p.link} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex items-center justify-center gap-2 bg-black text-white font-medium px-6 py-2 rounded-lg shadow-sm hover:bg-gray-800 transition-all w-full">
-                    <FileText className="w-5 h-5" />
-                    <span>View Press</span>
+                  <a href={p.link} target="_blank" rel="noopener noreferrer" className="block w-full bg-black text-white px-4 py-2 rounded text-center hover:bg-gray-800">
+                    View Press
                   </a>
                 )}
 
@@ -170,14 +238,15 @@ const PressDashboard = () => {
           ))}
         </div>
 
+        {/* ---------------- PAGINATION ---------------- */}
         {totalPages > 1 && (
-          <div className="flex justify-center items-center flex-wrap gap-2 mt-8">
+          <div className="flex justify-center gap-2 mt-8">
             <Button variant="outline" disabled={currentPage === 1} onClick={() => setCurrentPage(currentPage - 1)}>
               Prev
             </Button>
 
             {[...Array(totalPages)].map((_, i) => (
-              <button key={i} onClick={() => setCurrentPage(i + 1)} className={`px-4 py-2 rounded-lg border transition-all duration-200 ${currentPage === i + 1 ? "bg-black text-white border-black" : "bg-white text-gray-700 hover:bg-gray-100 border-gray-300"}`}>
+              <button key={i} onClick={() => setCurrentPage(i + 1)} className={`px-4 py-2 rounded border ${currentPage === i + 1 ? "bg-black text-white" : "bg-white"}`}>
                 {i + 1}
               </button>
             ))}
